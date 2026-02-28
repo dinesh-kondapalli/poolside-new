@@ -50,6 +50,18 @@ function smoothstep(edge0: number, edge1: number, value: number) {
 type Trail = {
   ox: number; // spawn x  (world coords)
   oy: number; // spawn y  (world coords) – always SPAWN_Y
+  laneT: number;
+  batchIndex: number;
+  baseDx: number;
+  baseAmp: number;
+  baseFreq: number;
+  basePhase: number;
+  rightBend: number;
+  bendInStart: number;
+  bendInEnd: number;
+  bendOutStart: number;
+  bendOutEnd: number;
+  cycle: number;
   dx: number; // horizontal drift per unit of vertical travel  ← diagonal lean
   waveAmp: number; // lateral sine amplitude                        ← S-curve depth
   waveFreq: number; // lateral sine frequency
@@ -99,6 +111,49 @@ export function HeroSection() {
     };
 
     // ── trail spawner ────────────────────────────────────────────────────────
+    const applyReentryPattern = (t: Trail, cycle: number) => {
+      const pattern = cycle % 3;
+
+      if (pattern === 0) {
+        // Type A: mostly straight with a clean mid bend.
+        t.dx = t.baseDx;
+        t.waveAmp = t.baseAmp;
+        t.waveFreq = t.baseFreq;
+        t.wavePhase = t.basePhase;
+        t.rightBend = 0;
+        t.bendInStart = 0.14;
+        t.bendInEnd = 0.34;
+        t.bendOutStart = 0.6;
+        t.bendOutEnd = 0.88;
+        return;
+      }
+
+      if (pattern === 1) {
+        // Type B: more curvy before flattening out near the top.
+        t.dx = t.baseDx * 0.95;
+        t.waveAmp = t.baseAmp * 1.35;
+        t.waveFreq = t.baseFreq * 1.24;
+        t.wavePhase = t.basePhase + 0.42;
+        t.rightBend = 0.015;
+        t.bendInStart = 0.1;
+        t.bendInEnd = 0.29;
+        t.bendOutStart = 0.66;
+        t.bendOutEnd = 0.95;
+        return;
+      }
+
+      // Type C: stronger right bend profile.
+      t.dx = t.baseDx * 1.12;
+      t.waveAmp = t.baseAmp * 0.92;
+      t.waveFreq = t.baseFreq * 0.9;
+      t.wavePhase = t.basePhase - 0.24;
+      t.rightBend = 0.12 + t.laneT * 0.05;
+      t.bendInStart = 0.16;
+      t.bendInEnd = 0.36;
+      t.bendOutStart = 0.58;
+      t.bendOutEnd = 0.84;
+    };
+
     const spawnTrail = (t: Trail, index: number, stagger = false) => {
       const half = Math.floor(TRAIL_COUNT / 2);
       const isLeftGroup = index < half;
@@ -114,12 +169,13 @@ export function HeroSection() {
       t.ox =
         laneStart + laneWidth * laneT + rng(-xLimit * 0.012, xLimit * 0.012);
       t.oy = SPAWN_Y;
-      // Keep all trails moving in the same global direction (upward-right)
-      t.dx = 0.23 + laneT * 0.11 + rng(-0.01, 0.01);
-      // Long bend through the mid-path, then straight again near top
-      t.waveAmp = rng(0.11, 0.17);
-      t.waveFreq = rng(0.72, 1.08);
-      t.wavePhase =
+      t.laneT = laneT;
+      t.batchIndex = batchIndex;
+
+      t.baseDx = 0.23 + laneT * 0.11 + rng(-0.01, 0.01);
+      t.baseAmp = rng(0.11, 0.165);
+      t.baseFreq = rng(0.72, 1.08);
+      t.basePhase =
         laneT * Math.PI * 0.9 + batchIndex * 0.55 + (isLeftGroup ? 0.2 : 0.8);
 
       t.speed = 0.52;
@@ -127,6 +183,9 @@ export function HeroSection() {
       // Spawn in repeating grouped waves: every trail in a batch starts together.
       const baseOffset = batchIndex * BATCH_LAUNCH_GAP + 0.08;
       t.s = stagger ? baseOffset : 0.08;
+
+      t.cycle = Math.floor(t.s / CYCLE_PERIOD);
+      applyReentryPattern(t, t.cycle);
     };
 
     // ── create trails ────────────────────────────────────────────────────────
@@ -134,6 +193,18 @@ export function HeroSection() {
       const t: Trail = {
         ox: 0,
         oy: SPAWN_Y,
+        laneT: 0,
+        batchIndex: 0,
+        baseDx: 0,
+        baseAmp: 0,
+        baseFreq: 0,
+        basePhase: 0,
+        rightBend: 0,
+        bendInStart: 0.14,
+        bendInEnd: 0.34,
+        bendOutStart: 0.6,
+        bendOutEnd: 0.88,
+        cycle: 0,
         dx: 0,
         waveAmp: 0,
         waveFreq: 0,
@@ -197,6 +268,12 @@ export function HeroSection() {
       for (const t of trails) {
         t.s += dt * t.speed * speedBoost;
 
+        const cycle = Math.floor(t.s / CYCLE_PERIOD);
+        if (cycle !== t.cycle) {
+          t.cycle = cycle;
+          applyReentryPattern(t, cycle);
+        }
+
         // ── build tail polyline from tail → moving head ────────────────────
         // Head repeats with modular travel; tail is only drawn behind the
         // current head within this cycle, so the line travels with the cube.
@@ -216,12 +293,13 @@ export function HeroSection() {
 
           const progress = Math.min(segmentTravel / LOOP_PERIOD, 1);
           const bendWindow =
-            smoothstep(0.14, 0.34, progress) *
-            (1 - smoothstep(0.6, 0.88, progress));
+            smoothstep(t.bendInStart, t.bendInEnd, progress) *
+            (1 - smoothstep(t.bendOutStart, t.bendOutEnd, progress));
           const curveRamp = 0.06 + 0.94 * bendWindow;
           const wx =
             t.ox +
             t.dx * segmentTravel +
+            t.rightBend * bendWindow +
             t.waveAmp *
               curveRamp *
               Math.sin(segmentTravel * t.waveFreq + t.wavePhase);
@@ -273,12 +351,13 @@ export function HeroSection() {
         if (showHead) {
           const headProgress = Math.min(headTravel / LOOP_PERIOD, 1);
           const headBendWindow =
-            smoothstep(0.14, 0.34, headProgress) *
-            (1 - smoothstep(0.6, 0.88, headProgress));
+            smoothstep(t.bendInStart, t.bendInEnd, headProgress) *
+            (1 - smoothstep(t.bendOutStart, t.bendOutEnd, headProgress));
           const headCurveRamp = 0.06 + 0.94 * headBendWindow;
           const headWx =
             t.ox +
             t.dx * headTravel +
+            t.rightBend * headBendWindow +
             t.waveAmp *
               headCurveRamp *
               Math.sin(headTravel * t.waveFreq + t.wavePhase);
