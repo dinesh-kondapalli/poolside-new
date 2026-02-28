@@ -1,5 +1,6 @@
 "use client";
 
+import { Globe } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import styles from "./hero-section.module.css";
 
@@ -393,7 +394,10 @@ export function HeroSection() {
     <section className={styles.hero}>
       <div className={styles.layout}>
         <aside className={styles.sidebar}>
-          <p className={styles.brand}>poolside</p>
+          <p className={styles.brand}>
+            <Globe aria-hidden="true" className={styles.brandIcon} size={12} />
+            poolside
+          </p>
           <nav aria-label="Hero links" className={styles.menu}>
             {menuItems.map((item) => (
               <button className={styles.menuItem} key={item} type="button">

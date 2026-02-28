@@ -60,6 +60,7 @@
   max-height: 15rem;
   object-fit: contain;
   display: block;
+  filter: invert(0.9) grayscale(1) contrast(1.08) brightness(1.22);
 }
 
 .tileBody {

@@ -33,7 +33,7 @@
   height: 26rem;
   border: 1px solid #2f3439;
   overflow: hidden;
-  background: #101010;
+  background: var(--page-bg);
 }
 
 .video {
@@ -41,6 +41,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  filter: invert(0.9) grayscale(1) contrast(1.08) brightness(1.22);
 }
 
 .story {

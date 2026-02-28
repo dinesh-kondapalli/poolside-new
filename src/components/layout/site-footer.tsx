@@ -32,7 +32,7 @@ export function SiteFooter() {
       </div>
 
       <div aria-hidden="true" className={styles.wordmark}>
-        poolside
+        hodlchain
       </div>
     </footer>
   );
