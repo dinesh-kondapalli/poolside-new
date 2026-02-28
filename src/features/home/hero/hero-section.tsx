@@ -9,7 +9,14 @@ import styles from "./hero-section.module.css";
 const TRAIL_SEGMENTS = 62;
 const SEGMENT_SPACING = 0.028;
 const TRAIL_COUNT = 12;
+const BATCH_COUNT = 3;
 const LOOP_PERIOD = 2.24;
+const TAIL_LENGTH = (TRAIL_SEGMENTS - 1) * SEGMENT_SPACING;
+const BATCH_LAUNCH_GAP = 0.18;
+const REENTRY_DELAY = 0.42;
+const ACTIVE_PERIOD = LOOP_PERIOD + TAIL_LENGTH;
+const CYCLE_PERIOD =
+  ACTIVE_PERIOD + (BATCH_COUNT - 1) * BATCH_LAUNCH_GAP + REENTRY_DELAY;
 
 const SPAWN_Y = -1.12; // just below camera bottom  (world y = -1)
 
@@ -31,6 +38,11 @@ function rng(min: number, max: number) {
 
 function positiveMod(value: number, modulus: number) {
   return ((value % modulus) + modulus) % modulus;
+}
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
 }
 
 // ─── types ───────────────────────────────────────────────────────────────────
@@ -94,6 +106,7 @@ export function HeroSection() {
       const laneCount = isLeftGroup ? half : TRAIL_COUNT - half;
       const laneT = laneCount > 1 ? laneIndex / (laneCount - 1) : 0.5;
 
+      const batchIndex = index % BATCH_COUNT;
       const laneStart = isLeftGroup ? -xLimit * 1.0 : xLimit * 0.22;
       const laneEnd = isLeftGroup ? -xLimit * 0.22 : xLimit * 1.0;
       const laneWidth = laneEnd - laneStart;
@@ -103,17 +116,17 @@ export function HeroSection() {
       t.oy = SPAWN_Y;
       // Keep all trails moving in the same global direction (upward-right)
       t.dx = 0.23 + laneT * 0.11 + rng(-0.01, 0.01);
-      // Smooth S-curves with consistent upward flow
-      t.waveAmp = rng(0.12, 0.19);
-      t.waveFreq = rng(1.0, 1.6);
+      // Long bend through the mid-path, then straight again near top
+      t.waveAmp = rng(0.11, 0.17);
+      t.waveFreq = rng(0.72, 1.08);
       t.wavePhase =
-        laneT * Math.PI * 1.15 + (isLeftGroup ? 0.2 : 0.9) + rng(-0.17, 0.17);
-      t.speed = rng(0.42, 0.62);
-      // Stagger positions so heads are distributed through the loop
-      const baseOffset = (index / TRAIL_COUNT) * LOOP_PERIOD;
-      t.s = stagger
-        ? baseOffset + rng(0.12, 0.12 + LOOP_PERIOD / TRAIL_COUNT)
-        : baseOffset + 0.12;
+        laneT * Math.PI * 0.9 + batchIndex * 0.55 + (isLeftGroup ? 0.2 : 0.8);
+
+      t.speed = 0.52;
+
+      // Spawn in repeating grouped waves: every trail in a batch starts together.
+      const baseOffset = batchIndex * BATCH_LAUNCH_GAP + 0.08;
+      t.s = stagger ? baseOffset : 0.08;
     };
 
     // ── create trails ────────────────────────────────────────────────────────
@@ -188,26 +201,31 @@ export function HeroSection() {
         // Head repeats with modular travel; tail is only drawn behind the
         // current head within this cycle, so the line travels with the cube.
 
-        const headSkMod = positiveMod(t.s, LOOP_PERIOD);
-        const subpaths: Array<Array<{ x: number; y: number }>> = [];
-        let currentPath: Array<{ x: number; y: number }> = [];
-        let prevSkWrapped = -1;
+        const headTravel = positiveMod(t.s, CYCLE_PERIOD);
+        if (headTravel > ACTIVE_PERIOD) {
+          continue;
+        }
+
+        const points: Array<{ x: number; y: number }> = [];
         let tailPoint: { x: number; y: number } | null = null;
 
         for (let k = TRAIL_SEGMENTS - 1; k >= 0; k -= 1) {
           const segDistance = k * SEGMENT_SPACING;
-          const skRaw = headSkMod - segDistance;
-          const skWrapped = skRaw >= 0 ? skRaw : skRaw + LOOP_PERIOD;
+          const segmentTravel = headTravel - segDistance;
+          if (segmentTravel < 0 || segmentTravel > LOOP_PERIOD) continue;
 
-          const progress = Math.min(skWrapped / LOOP_PERIOD, 1);
-          const curveRamp = 0.35 + 0.65 * Math.sin(progress * Math.PI) ** 0.72;
+          const progress = Math.min(segmentTravel / LOOP_PERIOD, 1);
+          const bendWindow =
+            smoothstep(0.14, 0.34, progress) *
+            (1 - smoothstep(0.6, 0.88, progress));
+          const curveRamp = 0.06 + 0.94 * bendWindow;
           const wx =
             t.ox +
-            t.dx * skWrapped +
+            t.dx * segmentTravel +
             t.waveAmp *
               curveRamp *
-              Math.sin(skWrapped * t.waveFreq + t.wavePhase);
-          const wy = t.oy + skWrapped;
+              Math.sin(segmentTravel * t.waveFreq + t.wavePhase);
+          const wy = t.oy + segmentTravel;
 
           const point = { x: wx2cx(wx), y: wy2cy(wy) };
 
@@ -215,23 +233,10 @@ export function HeroSection() {
             tailPoint = point;
           }
 
-          if (currentPath.length === 0) {
-            currentPath.push(point);
-          } else if (skWrapped < prevSkWrapped - 1.0) {
-            subpaths.push(currentPath);
-            currentPath = [point];
-          } else {
-            currentPath.push(point);
-          }
-
-          prevSkWrapped = skWrapped;
+          points.push(point);
         }
 
-        if (currentPath.length > 0) {
-          subpaths.push(currentPath);
-        }
-
-        if (subpaths.length > 0) {
+        if (points.length > 1) {
           const drawTrail = (
             lineWidth: number,
             strokeStyle: string,
@@ -242,15 +247,12 @@ export function HeroSection() {
             ctx.globalAlpha = alpha;
             ctx.strokeStyle = strokeStyle;
             ctx.lineWidth = lineWidth;
-            for (const path of subpaths) {
-              if (path.length < 2) continue;
-              ctx.beginPath();
-              ctx.moveTo(path[0].x, path[0].y);
-              for (let i = 1; i < path.length; i += 1) {
-                ctx.lineTo(path[i].x, path[i].y);
-              }
-              ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i += 1) {
+              ctx.lineTo(points[i].x, points[i].y);
             }
+            ctx.stroke();
           };
 
           // Soft glow pass (wide, translucent)
@@ -263,22 +265,28 @@ export function HeroSection() {
         }
 
         // ── diamond head ───────────────────────────────────────────────────
-        const headProgress = Math.min(headSkMod / LOOP_PERIOD, 1);
-        const headCurveRamp =
-          0.35 + 0.65 * Math.sin(headProgress * Math.PI) ** 0.72;
-        const headWx =
-          t.ox +
-          t.dx * headSkMod +
-          t.waveAmp *
-            headCurveRamp *
-            Math.sin(headSkMod * t.waveFreq + t.wavePhase);
-        const headWy = t.oy + headSkMod;
+        const showHead = headTravel <= LOOP_PERIOD;
 
         // Only draw the head when it's in (or just entering) the canvas
         const d = Math.max(10, H * 0.024);
 
-        if (headWy > -1.05 && headWy < 1.15) {
-          drawDiamond(wx2cx(headWx), wy2cy(headWy), d, 1);
+        if (showHead) {
+          const headProgress = Math.min(headTravel / LOOP_PERIOD, 1);
+          const headBendWindow =
+            smoothstep(0.14, 0.34, headProgress) *
+            (1 - smoothstep(0.6, 0.88, headProgress));
+          const headCurveRamp = 0.06 + 0.94 * headBendWindow;
+          const headWx =
+            t.ox +
+            t.dx * headTravel +
+            t.waveAmp *
+              headCurveRamp *
+              Math.sin(headTravel * t.waveFreq + t.wavePhase);
+          const headWy = t.oy + headTravel;
+
+          if (headWy > -1.05 && headWy < 1.15) {
+            drawDiamond(wx2cx(headWx), wy2cy(headWy), d, 1);
+          }
         }
 
         if (tailPoint) {
