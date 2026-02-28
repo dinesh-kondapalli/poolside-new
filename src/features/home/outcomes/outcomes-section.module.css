@@ -1,0 +1,100 @@
+.section {
+  width: 100%;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 4rem clamp(1.5rem, 6vw, 7.5rem) 6rem;
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.diagram {
+  width: 100%;
+  margin-bottom: 2.4rem;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.25rem;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.headline {
+  margin: 0;
+  max-width: 13ch;
+  font-size: clamp(2rem, 1.4rem + 1.7vw, 3rem);
+  line-height: 1.16;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.subhead {
+  margin: 0;
+  max-width: 18ch;
+  color: #b8bec6;
+  font-size: clamp(1.32rem, 1.12rem + 0.42vw, 1.62rem);
+  line-height: 1.4;
+}
+
+.rightCol {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.7rem;
+}
+
+.item h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1.38rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.item p {
+  margin: 0;
+  color: #a1a8b1;
+  font-size: 1.09rem;
+  line-height: 1.55;
+}
+
+.cta {
+  margin-top: 0.2rem;
+  border-top: 1px solid #3f6675;
+  padding-top: 0.9rem;
+  color: #91cde2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  justify-self: end;
+}
+
+@media (min-width: 900px) {
+  .section {
+    padding-top: 5rem;
+    padding-bottom: 7rem;
+  }
+
+  .content {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.55fr);
+    column-gap: 2.8rem;
+    align-items: start;
+  }
+
+  .rightCol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.1rem 2.5rem;
+  }
+
+  .cta {
+    grid-column: 1 / -1;
+  }
+}

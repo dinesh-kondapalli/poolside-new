@@ -1,0 +1,186 @@
+.section {
+  width: 100%;
+  padding: 0 clamp(1.5rem, 6vw, 7.5rem) 8rem;
+}
+
+.grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1px solid #31363c;
+  background: var(--surface);
+}
+
+.tile {
+  min-height: 20rem;
+  padding: 2.5rem;
+  border-right: 1px solid #31363c;
+  border-bottom: 1px solid #31363c;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--ink);
+}
+
+.tileIntro {
+  background: var(--surface);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.6rem);
+  line-height: 1.2;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.title strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.tileMedia {
+  padding: 0;
+}
+
+.mediaFrame {
+  flex: 1;
+  min-height: 10rem;
+  padding: 2.5rem 2.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  max-height: 15rem;
+  object-fit: contain;
+  display: block;
+}
+
+.tileBody {
+  padding: 0 2.5rem 2.75rem;
+  color: #9fa7b0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.tileBody p {
+  margin: 0;
+}
+
+.tileHeading {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.6rem;
+}
+
+.tileCta {
+  text-decoration: none;
+  color: inherit;
+  padding: 2.5rem;
+  background: var(--surface);
+  gap: 2.5rem;
+}
+
+.ctaContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.ctaTitle {
+  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.2rem);
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.ctaTitle strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.ctaFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: flex-end;
+}
+
+.ctaEmphasis {
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+
+.ctaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-top: 1px solid #31363c;
+  padding-top: 0.7rem;
+  color: #bcc4cd;
+  font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+}
+
+.ctaArrow {
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tile {
+    min-height: 24rem;
+  }
+
+  .tile:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .tile:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .tileCta {
+    min-height: 24rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tile {
+    min-height: 26rem;
+  }
+
+  .video {
+    max-height: 17rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .section {
+    padding: 0 1rem 6rem;
+  }
+
+  .grid {
+    border-left: 1px solid #31363c;
+  }
+
+  .tile {
+    border-right: 0;
+  }
+
+  .tile:last-child {
+    border-bottom: 0;
+  }
+}

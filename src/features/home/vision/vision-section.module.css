@@ -1,0 +1,104 @@
+.section {
+  width: 100%;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 5.5rem clamp(1.5rem, 6vw, 7.5rem) 7rem;
+}
+
+.grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "media"
+    "heading"
+    "body";
+  gap: 2.25rem;
+}
+
+.mediaFrame {
+  grid-area: media;
+  position: relative;
+  width: 100%;
+  min-height: 17rem;
+  border: 1px solid #31363c;
+  overflow: hidden;
+}
+
+.media {
+  object-fit: cover;
+}
+
+.heading {
+  grid-area: heading;
+  margin: 0;
+  max-width: 22ch;
+  font-size: clamp(1.8rem, 1.3rem + 1.45vw, 3rem);
+  line-height: 1.2;
+  font-weight: 400;
+  color: #c5cad1;
+}
+
+.heading strong {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.bodyWrap {
+  grid-area: body;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: #a1a8b1;
+}
+
+.copy p {
+  margin: 0;
+}
+
+.copy strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cta {
+  border-top: 1px solid #3f6675;
+  padding-top: 0.9rem;
+  text-align: right;
+  color: #91cde2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 0.98rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: clamp(16rem, 24vw, 20rem) minmax(0, 1fr);
+    grid-template-areas:
+      "media heading"
+      "media body";
+    column-gap: 3.4rem;
+    row-gap: 2.4rem;
+    align-items: start;
+  }
+
+  .mediaFrame {
+    width: 100%;
+    min-height: 32rem;
+  }
+
+  .bodyWrap {
+    align-self: end;
+  }
+}
