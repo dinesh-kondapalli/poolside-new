@@ -6,6 +6,7 @@
   --ink: #e8eaed;
   --muted-ink: #9ba3af;
   --brand: #2549ff;
+  --font-vt323: var(--font-ibm-plex-mono);
 }
 
 @theme inline {
@@ -20,7 +21,20 @@ body {
   min-height: 100vh;
   background: var(--page-bg);
   color: var(--ink);
-  font-family: var(--font-space-grotesk), "Segoe UI", sans-serif;
+  font-family: var(--font-space-grotesk), "Helvetica Neue", Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+strong,
+b {
+  font-family:
+    var(--font-untitled-sans-medium), "Helvetica Neue", Arial, sans-serif;
 }
 
 * {

@@ -15,17 +15,18 @@
 
 .heading {
   margin: 0;
-  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem);
-  line-height: 1.25;
+  font-style: normal;
+  font-size: 32px;
+  line-height: 42px;
   font-weight: 400;
-  color: #c5cad1;
+  color: rgb(255, 255, 255);
   max-width: 42rem;
   margin-bottom: 3.5rem;
 }
 
 .heading strong {
-  font-weight: 500;
-  color: var(--ink);
+  font-weight: 400;
+  color: rgb(255, 255, 255);
 }
 
 .videoFrame {
@@ -48,9 +49,11 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2.5rem;
-  font-size: 1rem;
-  color: #9ca4ae;
-  line-height: 1.6;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: rgb(255, 255, 255);
 }
 
 .story p {

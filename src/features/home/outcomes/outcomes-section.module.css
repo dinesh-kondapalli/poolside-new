@@ -30,18 +30,21 @@
 .headline {
   margin: 0;
   max-width: 13ch;
-  font-size: clamp(2rem, 1.4rem + 1.7vw, 3rem);
-  line-height: 1.16;
+  font-style: normal;
+  font-size: 32px;
+  line-height: 42px;
   font-weight: 400;
-  color: var(--ink);
+  color: rgb(255, 255, 255);
 }
 
 .subhead {
   margin: 0;
   max-width: 18ch;
-  color: #b8bec6;
-  font-size: clamp(1.32rem, 1.12rem + 0.42vw, 1.62rem);
-  line-height: 1.4;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(214, 213, 207);
+  font-size: 20px;
+  line-height: 28px;
 }
 
 .rightCol {
@@ -52,17 +55,20 @@
 
 .item h3 {
   margin: 0 0 0.55rem;
-  font-size: 1.38rem;
-  line-height: 1.25;
-  font-weight: 600;
-  color: var(--ink);
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: rgb(255, 255, 255);
 }
 
 .item p {
   margin: 0;
-  color: #a1a8b1;
-  font-size: 1.09rem;
-  line-height: 1.55;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(255, 255, 255);
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .cta {

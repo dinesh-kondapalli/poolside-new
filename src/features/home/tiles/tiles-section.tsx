@@ -114,8 +114,10 @@ export function TilesSection() {
           <div className={styles.ctaContent}>
             <span className={styles.ctaTitle}>
               <strong>Delivering intelligence across your development</strong>
-              ecosystem&mdash;from IDE to terminal, agents to custom
-              applications.
+              <span className={styles.ctaTitleSubline}>
+                ecosystem&mdash;from IDE to terminal, agents to custom
+                applications.
+              </span>
             </span>
             <div className={styles.ctaFooter}>
               <span className={styles.ctaEmphasis}>

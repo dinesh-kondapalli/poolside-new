@@ -15,18 +15,20 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1.3rem;
-  align-items: end;
+  align-items: center;
 }
 
 .row h3 {
   margin: 0;
-  font-size: clamp(1.8rem, 1.2rem + 1.35vw, 3rem);
-  line-height: 1.18;
+  font-style: normal;
+  font-size: 36px;
+  line-height: 47px;
   font-weight: 400;
-  color: var(--ink);
-  max-width: 18ch;
+  color: rgb(255, 255, 255);
+  max-width: none;
+  white-space: nowrap;
 }
 
 .action {
@@ -47,11 +49,6 @@
 }
 
 @media (min-width: 900px) {
-  .row {
-    grid-template-columns: minmax(0, 1fr) minmax(15rem, 36%);
-    column-gap: 2rem;
-  }
-
   .action {
     width: 100%;
   }

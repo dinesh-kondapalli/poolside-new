@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Space_Grotesk, VT323 } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const untitledSansRegular = Instrument_Sans({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: "400",
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
+const untitledSansMedium = Instrument_Sans({
+  variable: "--font-untitled-sans-medium",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: "500",
 });
 
-const vt323 = VT323({
-  variable: "--font-vt323",
+const untitledSansMonoFallback = Instrument_Sans({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
   weight: "400",
 });
@@ -32,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} ${vt323.variable} antialiased`}
+        className={`${untitledSansRegular.variable} ${untitledSansMedium.variable} ${untitledSansMonoFallback.variable} antialiased`}
       >
         {children}
       </body>
